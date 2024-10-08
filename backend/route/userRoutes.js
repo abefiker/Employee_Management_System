@@ -10,10 +10,14 @@ const {
   updateUser,
   deleteUser,
   updateUserProfile,
+  createUser,
 } = require('../controller/userController');
 const { protect, admin } = require('../middlerware/authMiddleware');
 
-router.route('/').post(registerUser).get(protect, admin, getUsers);
+router.route('/register').post(registerUser);
+
+// Route for creating a user (admin only)
+router.route('/').post(protect, admin, createUser).get(protect, admin, getUsers);
 router.route('/auth').post(authUser);
 router.route('/logout').post(protect, logoutUser);
 router

@@ -21,10 +21,10 @@ const authUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      phone: user.phone,  // Include phone number
-      position: user.position,  // Include position
-      department: user.department,  // Include department
-      hireDate: user.hireDate,  // Include hire date
+      phone: user.phone, // Include phone number
+      position: user.position, // Include position
+      department: user.department, // Include department
+      hireDate: user.hireDate, // Include hire date
       isAdmin: user.isAdmin,
     });
   } else {
@@ -60,10 +60,10 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      phone: user.phone,  // Include phone number
-      position: user.position,  // Include position
-      department: user.department,  // Include department
-      hireDate: user.hireDate,  // Include hire date
+      phone: user.phone, // Include phone number
+      position: user.position, // Include position
+      department: user.department, // Include department
+      hireDate: user.hireDate, // Include hire date
       isAdmin: user.isAdmin,
     });
   } else {
@@ -94,10 +94,10 @@ const getUserProfile = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      phone: user.phone,  // Include phone number
-      position: user.position,  // Include position
-      department: user.department,  // Include department
-      hireDate: user.hireDate,  // Include hire date
+      phone: user.phone, // Include phone number
+      position: user.position, // Include position
+      department: user.department, // Include department
+      hireDate: user.hireDate, // Include hire date
       isAdmin: user.isAdmin,
     });
   } else {
@@ -122,10 +122,10 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
-      phone: user.phone,  // Include phone number
-      position: user.position,  // Include position
-      department: user.department,  // Include department
-      hireDate: user.hireDate,  // Include hire date
+      phone: user.phone, // Include phone number
+      position: user.position, // Include position
+      department: user.department, // Include department
+      hireDate: user.hireDate, // Include hire date
       isAdmin: user.isAdmin,
     });
   } else {
@@ -182,28 +182,89 @@ const updateUser = asyncHandler(async (req, res) => {
   if (user) {
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
-    user.phone = req.body.phone || user.phone; // Update phone number
-    user.position = req.body.position || user.position; // Update position
-    user.department = req.body.department || user.department; // Update department
-    user.hireDate = req.body.hireDate || user.hireDate; // Update hire date
+    user.phone = req.body.phone || user.phone;
+    user.isAdmin =
+      req.body.isAdmin !== undefined ? req.body.isAdmin : user.isAdmin;
+    user.position = req.body.position || user.position;
+    user.department = req.body.department || user.department;
+    user.hireDate = req.body.hireDate || user.hireDate;
+
     if (req.body.password) {
       user.password = await user.encryptPassword(req.body.password);
     }
+
+    const updatedUser = await user.save(); // Save the updated user
+
     res.status(200).json({
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
-      phone: user.phone,  // Include phone number
-      position: user.position,  // Include position
-      department: user.department,  // Include department
-      hireDate: user.hireDate,  // Include hire date
-      isAdmin: user.isAdmin,
+      phone: updatedUser.phone,
+      position: updatedUser.position,
+      department: updatedUser.department,
+      hireDate: updatedUser.hireDate,
+      isAdmin: updatedUser.isAdmin,
     });
   } else {
     res.status(404);
     throw new Error('User not found');
   }
 });
+//@desc Create user
+//@route POST /api/users
+//@access Private/Admin
+const createUser = asyncHandler(async (req, res) => {
+  console.log('Request Body:', req.body); // Log the entire request body for debugging
+
+  const {
+    name,
+    email,
+    phone,
+    position,
+    department,
+    hireDate,
+    isAdmin,
+    password,
+  } = req.body;
+
+  // Check if the user already exists
+  const userExists = await User.findOne({ email });
+  if (userExists) {
+    res.status(400);
+    throw new Error('User already exists');
+  }
+
+  // Create the user (password will be hashed by the pre-save middleware)
+  const user = await User.create({
+    name, // Ensure the key is "name" with no trailing space
+    email,
+    phone,
+    position,
+    department,
+    hireDate,
+    isAdmin,
+    password,
+  });
+
+  // Return user details without the password
+  if (user) {
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      position: user.position,
+      hireDate: user.hireDate,
+      department: user.department,
+      isAdmin: user.isAdmin,
+    });
+  } else {
+    res.status(400);
+    throw new Error('Invalid user data');
+  }
+});
+
+
 module.exports = {
   authUser,
   registerUser,
@@ -214,4 +275,5 @@ module.exports = {
   updateUser,
   deleteUser,
   updateUserProfile,
+  createUser,
 };

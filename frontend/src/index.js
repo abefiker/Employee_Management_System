@@ -18,6 +18,8 @@ import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import AdminRoutes from './components/AdminRoutes';
 import EmployeeListScreen from './screens/admin/EmployeeListScreen';
+import EmployeeEditScreen from './screens/admin/EmployeeEditScreen';
+import CreateEmployeeScreen from './screens/admin/CreateEmployeeScreen';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -27,7 +29,11 @@ const router = createBrowserRouter(
       <Route path="/register" element={<RegisterScreen />} />
       <Route path="" element={<AdminRoutes />}>
         <Route path="/admin/employeeList" element={<EmployeeListScreen />} />
-        <Route path="/admin/employee/:id/edit" element={<EmployeeListScreen />} />
+        <Route path='/admin/create_employee' element={<CreateEmployeeScreen/>}/>
+        <Route
+          path="/admin/employee/:id/edit"
+          element={<EmployeeEditScreen />}
+        />
       </Route>
     </Route>
   )
